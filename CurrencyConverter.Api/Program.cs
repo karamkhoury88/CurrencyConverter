@@ -43,6 +43,11 @@ namespace CurrencyConverter.Api
 
             #endregion
 
+            // Get CurrencyConverterConfiguration section from configuration and validate it
+            CurrencyConverterConfigurationDto configuration = builder.Configuration.GetSection("CurrencyConverterConfiguration").Get<CurrencyConverterConfigurationDto>()
+                ?? throw new InvalidOperationException("Configuration are missing");
+            configuration.Validate();
+
             // Add our custom services to services collection (for DI)
             CurrencyConverterServicesDiMapper.MapAppServices(builder.Services);
 
@@ -53,7 +58,7 @@ namespace CurrencyConverter.Api
             AddIdentitySystem(builder);
 
             //Configure JWT authentication and add authorization policies
-            ConfigureJwtAuthenticationAndAuthorizationPolicies(builder);
+            ConfigureJwtAuthenticationAndAuthorizationPolicies(builder, configuration.Jwt);
 
             // Configure API versioning 
             ConfigureApiVersioning(builder);
@@ -62,7 +67,7 @@ namespace CurrencyConverter.Api
             ConfigureCaching(builder);
 
             // Configure Rate Limiting
-            ConfigureRateLimiting(builder);
+            ConfigureRateLimiting(builder, anonymousUserRateLimitingConfiguration: configuration.AnonymousUserRateLimitingConfiguration, authenticatedUsersConfiguration: configuration.AuthenticatedUserRateLimitingConfiguration);
 
             // Add Swagger with JWT auth support
             ConfigureSwagger(builder);
@@ -80,9 +85,6 @@ namespace CurrencyConverter.Api
             builder.Services.AddSwaggerGen();
 
             WebApplication app = builder.Build();
-
-            // We initiate it to run the configuration validation early, to catch any misconfiguration 
-            _ = app.Services.GetRequiredService<IConfigurationService>();
 
             // Configure the HTTP request pipeline.
             // Use swagger documentations
@@ -174,17 +176,11 @@ namespace CurrencyConverter.Api
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="configuration"></param>
-        private static void ConfigureJwtAuthenticationAndAuthorizationPolicies(WebApplicationBuilder builder)
+        private static void ConfigureJwtAuthenticationAndAuthorizationPolicies(WebApplicationBuilder builder, JwtConfigurationDto configuration)
         {
-            // Get CurrencyConverterConfiguration section from configuration
-            CurrencyConverterConfigurationDto? configuration = builder.Configuration.GetSection("CurrencyConverterConfiguration").Get<CurrencyConverterConfigurationDto>() 
-                ?? throw new InvalidOperationException("Configuration are missing");
-
-            // Validate it
-            configuration.Validate();
 
             // convert the secretKey string value to bytes array
-            byte[] key = Encoding.ASCII.GetBytes(configuration.Jwt.SecretKey);
+            byte[] key = Encoding.ASCII.GetBytes(configuration.SecretKey);
 
             builder.Services.AddAuthentication(options =>
             {
@@ -199,8 +195,8 @@ namespace CurrencyConverter.Api
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.Jwt.Issuer,
-                    ValidAudience = configuration.Jwt.Audience,
+                    ValidIssuer = configuration.Issuer,
+                    ValidAudience = configuration.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
@@ -252,7 +248,7 @@ namespace CurrencyConverter.Api
         /// Configure Rate Limiting For authenticated users from any IP, and Rate Limiting For any call from a specific IP
         /// </summary>
         /// <param name="builder"></param>
-        private static void ConfigureRateLimiting(WebApplicationBuilder builder)
+        private static void ConfigureRateLimiting(WebApplicationBuilder builder, RateLimitingConfigurationDto authenticatedUsersConfiguration, RateLimitingConfigurationDto anonymousUserRateLimitingConfiguration)
         {
             // The RateLimiter middleware is designed to work efficiently in distributed scenarios,
             // and we can replace the in-memory partitioner with a distributed cache (e.g., Redis) if needed.
@@ -272,8 +268,8 @@ namespace CurrencyConverter.Api
                             partitionKey: userKey,
                             factory: _ => new FixedWindowRateLimiterOptions
                             {
-                                PermitLimit = 10,
-                                Window = TimeSpan.FromMinutes(1)
+                                PermitLimit = authenticatedUsersConfiguration.PermitLimit,
+                                Window = TimeSpan.FromMinutes(authenticatedUsersConfiguration.Window)
                             });
                     }
                     else
@@ -287,8 +283,8 @@ namespace CurrencyConverter.Api
                             partitionKey: ipKey,
                             factory: _ => new FixedWindowRateLimiterOptions
                             {
-                                PermitLimit = 10,
-                                Window = TimeSpan.FromMinutes(1)
+                                PermitLimit = anonymousUserRateLimitingConfiguration.PermitLimit,
+                                Window = TimeSpan.FromMinutes(anonymousUserRateLimitingConfiguration.Window)
                             });
                     }
                 });
@@ -368,7 +364,7 @@ namespace CurrencyConverter.Api
 
 
         /// <summary>
-        /// Register the IHttpClientFactory, To Manages the lifecycle of HttpClient instances, preventing resource exhaustion issues associated with frequent instantiation.
+        /// Register the IHttpClientFactory, To Manages the life-cycle of HttpClient instances, preventing resource exhaustion issues associated with frequent instantiation.
         /// </summary>
         /// <param name="builder"></param>
         private static void RegisterHttpClientFactory(WebApplicationBuilder builder)

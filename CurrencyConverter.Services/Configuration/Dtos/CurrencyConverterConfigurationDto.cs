@@ -12,7 +12,13 @@ namespace CurrencyConverter.Services.Configuration.Dtos
         [Required]
         public JwtConfigurationDto Jwt { get; set; }
 
-        [JsonPropertyName("PolyResiliencePolicy")]
-        public PolyResiliencePolicyConfigurationDto PolyResiliencePolicy { get; set; } = new();
+        [JsonPropertyName("PollyResiliencePolicy")]
+        public PollyResiliencePolicyConfigurationDto PollyResiliencePolicy { get; set; } = new();
+
+        [JsonPropertyName("AuthenticatedUserRateLimitingConfiguration")]
+        public RateLimitingConfigurationDto AuthenticatedUserRateLimitingConfiguration { get; set; } = new();
+
+        [JsonPropertyName("AnonymousUserRateLimitingConfiguration")]
+        public RateLimitingConfigurationDto AnonymousUserRateLimitingConfiguration { get; set; } = new();
     }
 }

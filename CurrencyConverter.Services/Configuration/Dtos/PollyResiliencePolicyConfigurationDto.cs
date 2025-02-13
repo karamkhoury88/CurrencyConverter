@@ -2,7 +2,7 @@
 
 namespace CurrencyConverter.Services.Configuration.Dtos
 {
-    public record PolyResiliencePolicyConfigurationDto
+    public record PollyResiliencePolicyConfigurationDto: BaseConfigurationDto
     {
         [JsonPropertyName("DurationOfBreak")]
         public int DurationOfBreak { get; set; } = 30;

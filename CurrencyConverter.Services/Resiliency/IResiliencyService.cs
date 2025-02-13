@@ -18,8 +18,8 @@ namespace CurrencyConverter.Services.Resiliency
 
         public ResiliencyService(IConfigurationService configuration, ILogger<ResiliencyService> logger)
         {
-            int maxRetryCount = configuration.Config.PolyResiliencePolicy.MaxRetryCount;
-            int durationOfBreak = configuration.Config.PolyResiliencePolicy.DurationOfBreak;
+            int maxRetryCount = configuration.Config.PollyResiliencePolicy.MaxRetryCount;
+            int durationOfBreak = configuration.Config.PollyResiliencePolicy.DurationOfBreak;
 
             // Retry policy with exponential backoff
             var retryPolicy = Policy
