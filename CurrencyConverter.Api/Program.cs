@@ -5,17 +5,15 @@ using CurrencyConverter.Api.Middlewares;
 using CurrencyConverter.Data;
 using CurrencyConverter.Data.Models;
 using CurrencyConverter.Services;
-using CurrencyConverter.Services.Configuration;
 using CurrencyConverter.Services.Configuration.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
+using Polly;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -27,6 +25,7 @@ namespace CurrencyConverter.Api
         public async static Task Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            builder.AddServiceDefaults();
 
             //TODO: README file For production, we need to use Azure Key Vault to store the secrets.
 
@@ -35,18 +34,20 @@ namespace CurrencyConverter.Api
             // Load configuration from multiple sources
             builder.Configuration
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-#if DEBUG
-                .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-#endif
                 .AddUserSecrets<Program>()
                 .AddEnvironmentVariables();
 
-            #endregion
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+            }
 
             // Get CurrencyConverterConfiguration section from configuration and validate it
             CurrencyConverterConfigurationDto configuration = builder.Configuration.GetSection("CurrencyConverterConfiguration").Get<CurrencyConverterConfigurationDto>()
-                ?? throw new InvalidOperationException("Configuration are missing");
+            ?? throw new InvalidConfigurationException("CurrencyConverter root Configuration node is missing");
             configuration.Validate();
+
+            #endregion
 
             // Add our custom services to services collection (for DI)
             CurrencyConverterServicesDiMapper.MapAppServices(builder.Services);
@@ -72,11 +73,16 @@ namespace CurrencyConverter.Api
             // Add Swagger with JWT auth support
             ConfigureSwagger(builder);
 
-            // Add OpenTelemetry for Application Performance Monitoring
-            AddOpenTelemetry(builder);
-
             // Register the IHttpClientFactory
             RegisterHttpClientFactory(builder);
+
+            // Configure exception handling logic
+            ConfigureExceptionsHandling(builder);
+
+            _ = builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
 
             builder.Services.AddControllers();
 
@@ -86,10 +92,15 @@ namespace CurrencyConverter.Api
 
             WebApplication app = builder.Build();
 
+            app.MapDefaultEndpoints();
+
             // Configure the HTTP request pipeline.
             // Use swagger documentations
             app.UseSwagger();
             app.UseSwaggerUI();
+
+            // Let the app use our exception handling middleware
+            app.UseExceptionHandler();
 
             if (app.Environment.IsDevelopment())
             {
@@ -128,7 +139,7 @@ namespace CurrencyConverter.Api
             app.UseMiddleware<HttpRequestLoggingMiddleware>();
 
             #endregion
-            
+
             await app.RunAsync();
         }
 
@@ -229,7 +240,7 @@ namespace CurrencyConverter.Api
             })
                 .AddApiExplorer(options =>
                 {
-                    options.GroupNameFormat = "'v'VVV"; //The format of version number ìëvímajor[.minor][-status]î
+                    options.GroupNameFormat = "'v'VVV"; //The format of version number ‚Äú‚Äòv‚Äômajor[.minor][-status]‚Äù
                     options.SubstituteApiVersionInUrl = true; //This will help us to resolve the ambiguity when there is a routing conflict due to routing template one or more end points are same.
                 });
         }
@@ -240,8 +251,28 @@ namespace CurrencyConverter.Api
         /// <param name="builder"></param>
         private static void ConfigureCaching(WebApplicationBuilder builder)
         {
-            //TODO: README - Add support for Redis cash for distributed cache support or use the new hybrid cache to have both in memory and distributed caching layers in one interface 
-            builder.Services.AddMemoryCache();
+            builder.AddRedisDistributedCache("distributedCache");
+#pragma warning disable EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            builder.Services.AddHybridCache();
+#pragma warning restore EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        }
+
+        private static void ConfigureExceptionsHandling(WebApplicationBuilder builder)
+        {
+            // Configure ProblemDetails approach 
+            builder.Services.AddProblemDetails(option =>
+            {
+                option.CustomizeProblemDetails = context => context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method}{context.HttpContext.Request.Path}";
+            });
+
+            // Add our exception handling middleware
+            builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
+
+            // Suppress Automatic model validation
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
         }
 
         /// <summary>
@@ -293,77 +324,6 @@ namespace CurrencyConverter.Api
         }
 
         /// <summary>
-        /// Add OpenTelemetry for Application metrics, tracing and log Monitoring
-        /// </summary>
-        /// <param name="builder"></param>
-        private static void AddOpenTelemetry(WebApplicationBuilder builder)
-        {
-            builder.Services.AddOpenTelemetry()
-
-                // Configure the resource (metadata) for the telemetry data
-                .ConfigureResource(resource =>
-                    // Add a service name to identify the source of the telemetry data
-                    resource.AddService("CurrencyConverterApi"))
-
-                // Configure metrics collection
-                .WithMetrics(metrics =>
-                {
-                    // Add instrumentation for ASP.NET Core to collect metrics about incoming HTTP requests
-                    metrics.AddAspNetCoreInstrumentation();
-
-                    // Add instrumentation for HttpClient to collect metrics about outgoing HTTP requests
-                    metrics.AddHttpClientInstrumentation();
-
-                    // Export metrics to the console (for debugging and development purposes)
-                    metrics.AddConsoleExporter();
-                    // We can set this to work with aspire dashboard
-                    // metrics AddOtlpExporter(options => options.Endpoint = new Uri("http://CurrencyConverterApi.dashboard:18889"));
-                })
-
-                // Configure tracing collection
-                .WithTracing(tracing =>
-                {
-                    // Add instrumentation for ASP.NET Core to collect traces about incoming HTTP requests
-                    tracing.AddAspNetCoreInstrumentation();
-
-                    // Add instrumentation for HttpClient to collect traces about outgoing HTTP requests
-                    tracing.AddHttpClientInstrumentation();
-
-                    // Export traces to the console (for debugging and development purposes)
-                    tracing.AddConsoleExporter();
-
-                    // Optionally, export traces to an OTLP (OpenTelemetry Protocol) endpoint
-                    // This can be used to send traces to an OpenTelemetry Collector or a backend like Jaeger
-                    // Uncomment and configure the endpoint to work with the Aspire dashboard or other OTLP-compatible systems
-                    // tracing.AddOtlpExporter(options => options.Endpoint = new Uri("http://CurrencyConverterApi.dashboard:18889"));
-                });
-
-            // Configure logging to use OpenTelemetry
-            builder.Logging.AddOpenTelemetry(logging =>
-            {
-                // Export logs to the console (for debugging and development purposes)
-                logging.AddConsoleExporter();
-
-                // Optionally, export logs to an OTLP (OpenTelemetry Protocol) endpoint
-                // This can be used to send logs to an OpenTelemetry Collector or a backend like Elasticsearch or Seq
-                // Uncomment and configure the endpoint to work with the Aspire dashboard or other OTLP-compatible systems
-                // logging.AddOtlpExporter(options => options.Endpoint = new Uri("http://CurrencyConverterApi.dashboard:18889"));
-
-
-                // Include the formatted message in the log records
-                logging.IncludeFormattedMessage = true;
-
-                // Include log scopes (additional context) in the log records
-                logging.IncludeScopes = true;
-
-                // Parse and include structured log state values in the log records
-                logging.ParseStateValues = true;
-            });
-
-        }
-
-
-        /// <summary>
         /// Register the IHttpClientFactory, To Manages the life-cycle of HttpClient instances, preventing resource exhaustion issues associated with frequent instantiation.
         /// </summary>
         /// <param name="builder"></param>
@@ -406,7 +366,6 @@ namespace CurrencyConverter.Api
             });
         }
 
-      
 
         /// <summary>
         /// Seed some initial users and roles into the in-memory database

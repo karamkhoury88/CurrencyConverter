@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
 using CurrencyConverter.Api.Common;
+using CurrencyConverter.Api.Common.Exceptions;
 using CurrencyConverter.Api.Dtos.Auth.Requests;
 using CurrencyConverter.Data.Models;
+using CurrencyConverter.ServiceDefaults.Exceptions;
 using CurrencyConverter.Services.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +14,11 @@ using System.Text;
 
 namespace CurrencyConverter.Api.Controllers
 {
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiController]
     [ApiVersion("1.0")]
     public class AuthController(UserManager<CurrencyConverterUser> userManager,
         SignInManager<CurrencyConverterUser> signInManager,
         IConfigurationService configuration,
-        ILogger<AuthController> logger) : ControllerBase
+        ILogger<AuthController> logger) : AppBaseController
     {
         /// <summary>
         /// Register a new user to the system
@@ -38,7 +38,8 @@ namespace CurrencyConverter.Api.Controllers
                 return Ok(new { message = "User registered successfully" });
             }
 
-            return BadRequest($"User registration failed, {string.Join(", ", result.Errors.Select(x => x.Description))}");
+            throw new AppException(errorCode: AppErrorCode.INVALID_PARAMETER,
+                publicMessage: string.Join(", ", result.Errors.Select(x => x.Description)));
         }
 
 
