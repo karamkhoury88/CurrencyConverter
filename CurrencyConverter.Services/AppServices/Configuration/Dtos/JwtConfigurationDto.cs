@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace CurrencyConverter.Services.Configuration.Dtos
+namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
 {
     public record JwtConfigurationDto : BaseConfigurationDto
     {

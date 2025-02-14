@@ -1,4 +1,4 @@
-﻿using CurrencyConverter.Services.Configuration;
+﻿using CurrencyConverter.Services.AppServices.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CurrencyConverter.Services

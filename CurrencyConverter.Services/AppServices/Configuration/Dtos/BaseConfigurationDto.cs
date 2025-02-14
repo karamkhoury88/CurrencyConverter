@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CurrencyConverter.Services.Configuration.Dtos
+namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
 {
     public record BaseConfigurationDto
     {

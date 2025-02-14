@@ -4,7 +4,7 @@ using CurrencyConverter.Api.Common.Exceptions;
 using CurrencyConverter.Api.Dtos.Auth.Requests;
 using CurrencyConverter.Data.Models;
 using CurrencyConverter.ServiceDefaults.Exceptions;
-using CurrencyConverter.Services.Configuration;
+using CurrencyConverter.Services.AppServices.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

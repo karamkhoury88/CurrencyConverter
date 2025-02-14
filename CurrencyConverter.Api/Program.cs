@@ -5,7 +5,7 @@ using CurrencyConverter.Api.Middlewares;
 using CurrencyConverter.Data;
 using CurrencyConverter.Data.Models;
 using CurrencyConverter.Services;
-using CurrencyConverter.Services.Configuration.Dtos;
+using CurrencyConverter.Services.AppServices.Configuration.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Polly;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.RateLimiting;
 
 namespace CurrencyConverter.Api
 {
@@ -25,6 +22,8 @@ namespace CurrencyConverter.Api
         public async static Task Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+            // Apply Aspire Service Defaults
             builder.AddServiceDefaults();
 
             //TODO: README file For production, we need to use Azure Key Vault to store the secrets.
@@ -67,14 +66,8 @@ namespace CurrencyConverter.Api
             // Configure Caching layer
             ConfigureCaching(builder);
 
-            // Configure Rate Limiting
-            ConfigureRateLimiting(builder, anonymousUserRateLimitingConfiguration: configuration.AnonymousUserRateLimitingConfiguration, authenticatedUsersConfiguration: configuration.AuthenticatedUserRateLimitingConfiguration);
-
             // Add Swagger with JWT auth support
             ConfigureSwagger(builder);
-
-            // Register the IHttpClientFactory
-            RegisterHttpClientFactory(builder);
 
             // Configure exception handling logic
             ConfigureExceptionsHandling(builder);
@@ -273,63 +266,6 @@ namespace CurrencyConverter.Api
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
-        }
-
-        /// <summary>
-        /// Configure Rate Limiting For authenticated users from any IP, and Rate Limiting For any call from a specific IP
-        /// </summary>
-        /// <param name="builder"></param>
-        private static void ConfigureRateLimiting(WebApplicationBuilder builder, RateLimitingConfigurationDto authenticatedUsersConfiguration, RateLimitingConfigurationDto anonymousUserRateLimitingConfiguration)
-        {
-            // The RateLimiter middleware is designed to work efficiently in distributed scenarios,
-            // and we can replace the in-memory partitioner with a distributed cache (e.g., Redis) if needed.
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-                // Global limiter that applies different policies based on authentication status
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-                {
-                    if (httpContext.User?.Identity?.IsAuthenticated == true)
-                    {
-                        // Use user ID for authenticated users
-                        var userKey = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown-user";
-
-                        return RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: userKey,
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = authenticatedUsersConfiguration.PermitLimit,
-                                Window = TimeSpan.FromMinutes(authenticatedUsersConfiguration.Window)
-                            });
-                    }
-                    else
-                    {
-                        // Use IP address for non-authenticated users
-                        var ipKey = httpContext.Request.Headers["X-Forwarded-For"].ToString()
-                                    ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                                    ?? "unknown-ip";
-
-                        return RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: ipKey,
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = anonymousUserRateLimitingConfiguration.PermitLimit,
-                                Window = TimeSpan.FromMinutes(anonymousUserRateLimitingConfiguration.Window)
-                            });
-                    }
-                });
-
-            });
-        }
-
-        /// <summary>
-        /// Register the IHttpClientFactory, To Manages the life-cycle of HttpClient instances, preventing resource exhaustion issues associated with frequent instantiation.
-        /// </summary>
-        /// <param name="builder"></param>
-        private static void RegisterHttpClientFactory(WebApplicationBuilder builder)
-        {
-            builder.Services.AddHttpClient();
         }
 
         /// <summary>

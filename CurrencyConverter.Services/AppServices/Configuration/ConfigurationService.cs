@@ -1,9 +1,9 @@
-﻿using CurrencyConverter.Services.Configuration.Dtos;
+﻿using CurrencyConverter.Services.AppServices.Configuration.Dtos;
 using Microsoft.Extensions.Configuration;
 using System.Runtime;
 using System.Text.Json;
 
-namespace CurrencyConverter.Services.Configuration
+namespace CurrencyConverter.Services.AppServices.Configuration
 {
     internal class ConfigurationService : IConfigurationService
     {
