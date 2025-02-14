@@ -1,4 +1,5 @@
 ﻿
+using CurrencyConverter.Services.HttpBasedServices.CurrencyConverter;
 using CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos;
 
 namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
@@ -31,6 +32,7 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
         /// <param name="targetCurrency"></param>
         /// <returns></returns>
         Task<ConvertCurrencyServiceResponseDto> ConvertCurrencyAsync(string baseCurrency, decimal amount, string targetCurrency);
-
     }
+
+
 }

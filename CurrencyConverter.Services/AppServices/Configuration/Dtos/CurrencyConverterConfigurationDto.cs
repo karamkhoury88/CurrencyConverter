@@ -11,5 +11,9 @@ namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
         [JsonPropertyName("Jwt")]
         [Required]
         public JwtConfigurationDto Jwt { get; set; }
+        
+        [JsonPropertyName("CurrencyConverterThirdPartyApi")]
+        [Required]
+        public CurrencyConverterThirdPartyApiConfigurationDto CurrencyConverterThirdPartyApi { get; set; }
     }
 }

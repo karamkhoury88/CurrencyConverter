@@ -1,4 +1,5 @@
 ﻿using CurrencyConverter.Services.AppServices.Configuration;
+using CurrencyConverter.Services.HttpBasedServices.CurrencyConverter;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CurrencyConverter.Services
@@ -9,6 +10,8 @@ namespace CurrencyConverter.Services
         {
             #region ThirdParty Services
 
+            serviceCollection.AddScoped<FrankfurterCurrencyConverter>();
+            serviceCollection.AddScoped<ICurrencyConverterFactory, CurrencyConverterFactory>();
 
             #endregion
 
@@ -23,8 +26,6 @@ namespace CurrencyConverter.Services
             _ = serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>();
 
             #endregion
-
-
         }
     }
 }
