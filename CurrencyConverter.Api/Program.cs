@@ -8,16 +8,12 @@ using CurrencyConverter.Data.Models;
 using CurrencyConverter.Services;
 using CurrencyConverter.Services.AppServices.Configuration.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -35,17 +31,15 @@ namespace CurrencyConverter.Api
             //TODO: README file For production, we need to use Azure Key Vault to store the secrets.
 
             #region Configuration
+            // TODO: Mention ASPNETCORE_ENVIRONMENT is the readme 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            // Load configuration from multiple sources
+            // Load configuration from multiple sources depending on the environment (Dev, Test and Production )
             builder.Configuration
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
                 .AddUserSecrets<Program>()
                 .AddEnvironmentVariables();
-
-            if (builder.Environment.IsDevelopment())
-            {
-                builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
-            }
 
             // Get CurrencyConverterConfiguration section from configuration and validate it
             CurrencyConverterConfigurationDto configuration = builder.Configuration.GetSection("CurrencyConverterConfiguration").Get<CurrencyConverterConfigurationDto>()
