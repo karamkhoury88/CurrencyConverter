@@ -39,7 +39,9 @@ namespace CurrencyConverter.Api.Controllers
             }
 
             throw new AppException(errorCode: AppErrorCode.INVALID_PARAMETER,
-                publicMessage: string.Join(", ", result.Errors.Select(x => x.Description)));
+                nonTechnicalMessage: string.Join(", ", result.Errors.Select(x => x.Description)),
+                technicalMessage: "Register user model is not valid."
+                );
         }
 
 

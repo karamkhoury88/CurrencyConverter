@@ -1,8 +1,7 @@
 ﻿using CurrencyConverter.ServiceDefaults.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Polly;
-using System;
 using System.Net;
 using System.Text.Json;
 
@@ -14,40 +13,42 @@ namespace CurrencyConverter.Api.Middlewares
             Exception exception,
             CancellationToken cancellationToken)
         {
-            ProblemDetails problem = new();
-  
+            ProblemDetails problemDetails = new();
+
             if (exception is AppException appException)
             {
-                LogWarning(appException);
+                LogWarning(appException, httpContext);
 
-                problem.Detail = $"{(int)appException.ErrorCode} : {appException.PublicMessage}";
-                problem.Status = (int)HttpStatusCode.BadRequest;
-                problem.Type = "Bad Request";
-                problem.Title = "Error";
-
-                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                problemDetails.Detail = $"{(int)appException.ErrorCode}";
+                problemDetails.Status = StatusCodes.Status400BadRequest;
+                problemDetails.Type = "Bad Request";
+                problemDetails.Title = appException.NonTechnicalMessage;
             }
             else
             {
-                LogError(exception);
+                LogError(exception, httpContext);
 
-                problem.Detail = $"Something went wrong, please try again.";
-                problem.Status = (int)HttpStatusCode.InternalServerError;
-                problem.Type = "Internal Server Error";
-                problem.Title = "Exception";
-
-                httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                problemDetails.Detail = $"{StatusCodes.Status500InternalServerError}";
+                problemDetails.Status = StatusCodes.Status500InternalServerError;
+                problemDetails.Type = "Internal Server Error";
+                problemDetails.Title = $"Something went wrong, please try again.";
             }
 
-            ProblemDetailsContext errorContext = new()
-            {
-                HttpContext = httpContext,
-                Exception = exception,
-                ProblemDetails = problem
-            };
+            httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
+            httpContext.Response.ContentType = "application/problem+json";
 
-            await problemDetailsService.WriteAsync(errorContext);
-            return true;
+            if (httpContext.Response.HasStarted)
+            {
+                logger.LogWarning("Response has already started. Cannot write ProblemDetails.");
+                return false;
+            }
+
+           return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                Exception = exception,
+                HttpContext = httpContext,
+                ProblemDetails = problemDetails
+            });
         }
 
         #region Private
@@ -78,42 +79,74 @@ namespace CurrencyConverter.Api.Middlewares
                 }
             }
 
-            return string.Join(" | ", messages);
+            return string.Join(" ", messages);
         }
 
-        private void LogWarning(AppException appException)
+        private void LogWarning(AppException appException, HttpContext httpContext)
         {
-            var technicalMessage = appException.TechnicalMessage ?? appException.Message;           
+            var technicalMessage = appException.TechnicalMessage ?? appException.Message;
             var errorCode = appException.ErrorCode;
+            string? activityId = GetActivityId(httpContext);
+            var requestId = httpContext.TraceIdentifier;
             var fullExceptionMessage = GetFullExceptionMessage(appException);
             var exceptionData = JsonSerializer.Serialize(appException.Data);
             var stackTrace = appException.StackTrace;
 
             logger.LogWarning(
-                "{TechnicalMessage} | ErrorCode: {ErrorCode} | {FullExceptionMessage} | Data: {ExceptionData} | StackTrace: {StackTrace}",
+                "{TechnicalMessage} {ErrorCode} {ActivityId} {RequestId} {FullExceptionMessage} {ExceptionData} {StackTrace}",
                 technicalMessage,
                 errorCode,
-                fullExceptionMessage, 
-                exceptionData,
-                stackTrace
-            );
-        }
-
-        private void LogError(Exception exception)
-        {
-
-            var fullExceptionMessage = GetFullExceptionMessage(exception);
-            var exceptionData = JsonSerializer.Serialize(exception.Data);
-            var stackTrace = exception.StackTrace;
-
-            logger.LogError(
-                "{FullExceptionMessage} | Data: {ExceptionData} | StackTrace: {StackTrace}",
+                activityId,
+                requestId,
                 fullExceptionMessage,
                 exceptionData,
                 stackTrace
             );
         }
 
+        private void LogError(Exception exception, HttpContext httpContext)
+        {
+            string? activityId = GetActivityId(httpContext);
+            var requestId = httpContext.TraceIdentifier;
+            var fullExceptionMessage = GetFullExceptionMessage(exception);
+            var exceptionData = JsonSerializer.Serialize(exception.Data);
+            var stackTrace = exception.StackTrace;
+
+            logger.LogError(
+                "{ActivityId} {RequestId} {FullExceptionMessage} {ExceptionData} {StackTrace}",
+                activityId,
+                requestId,
+                fullExceptionMessage,
+                exceptionData,
+                stackTrace
+            );
+        }
+
+        private static string? GetActivityId(HttpContext httpContext)
+        {
+            return (httpContext.Features.Get<IHttpActivityFeature>()?.Activity)?.Id;
+        }
+
         #endregion
+    }
+
+    public class CustomProblemDetailsWriter : IProblemDetailsWriter
+    {
+        public bool CanWrite(ProblemDetailsContext context)
+        {
+            return context.HttpContext.Response.ContentType?.StartsWith("application/problem+json") == true;
+        }
+
+        public async ValueTask WriteAsync(ProblemDetailsContext context)
+        {
+            context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method}{context.HttpContext.Request.Path}";
+            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+            context.ProblemDetails.Extensions.TryAdd("activityId", (context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity)?.Id);
+
+            var httpContext = context.HttpContext;
+
+            httpContext.Response.StatusCode = context.ProblemDetails.Status ?? StatusCodes.Status500InternalServerError;
+            await httpContext.Response.WriteAsJsonAsync(context.ProblemDetails);
+        }
     }
 }

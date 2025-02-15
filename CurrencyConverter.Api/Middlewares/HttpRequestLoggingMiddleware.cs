@@ -37,7 +37,7 @@ namespace CurrencyConverter.Api.Middlewares
                 elapsed.TotalMilliseconds, // Response Time in milliseconds
                 clientId,                // ClientId from JWT token
                 clientIp,                // Client IP address
-                context.Response.StatusCode); // Response Code (e.g., 200, 404)
+                context.Response.StatusCode); // Response Code
         }
     }
 }

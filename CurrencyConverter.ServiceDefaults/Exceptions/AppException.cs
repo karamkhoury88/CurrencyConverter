@@ -11,13 +11,15 @@ namespace CurrencyConverter.ServiceDefaults.Exceptions
     public class AppException : Exception
     {
         public AppErrorCode ErrorCode { get; init; }
-        public string PublicMessage { get; init; }
+        public string NonTechnicalMessage { get; init; }
         public string TechnicalMessage { get; init; }
 
-        public AppException(AppErrorCode errorCode, string publicMessage = "", string technicalMessage = "") : base(technicalMessage ?? publicMessage)
+        public AppException(AppErrorCode errorCode, string nonTechnicalMessage, string? technicalMessage = null) 
+            : base(!string.IsNullOrWhiteSpace(technicalMessage) ? $"{technicalMessage} {nonTechnicalMessage}" : nonTechnicalMessage)
         {
             ErrorCode = errorCode;
-            PublicMessage = publicMessage;
+            NonTechnicalMessage = nonTechnicalMessage;
+            TechnicalMessage = technicalMessage ?? nonTechnicalMessage;
         }
     }
 }

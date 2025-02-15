@@ -2,6 +2,6 @@
 {
     public struct CurrencyConverterProviders
     {
-        public const string FRANKFURTER = "Frankfurter";
+        public const string FRANKFURTER = "frankfurter";
     }
 }

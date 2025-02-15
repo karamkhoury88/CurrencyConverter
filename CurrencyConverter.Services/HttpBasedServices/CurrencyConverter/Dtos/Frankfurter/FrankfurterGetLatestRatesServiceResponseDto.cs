@@ -6,13 +6,13 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos
+namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.Frankfurter
 {
-    public record GetLatestRatesServiceResponseDto
+    public record FrankfurterGetLatestRatesServiceResponseDto
     {
         [JsonPropertyName("base")]
         [Required]
-        public string? Base { get; init; }    // The base currency (e.g., "EUR")
+        public required string Base { get; init; }    // The base currency (e.g., "EUR")
 
         [JsonPropertyName("date")]
         [Required]
@@ -20,6 +20,6 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos
 
         [JsonPropertyName("rates")]
         [Required]
-        public Dictionary<string, decimal> Rates { get; init; } = []; // Key-value pairs of currency codes =
+        public Dictionary<string, decimal> Rates { get; init; } = []; 
     }
 }

@@ -2,18 +2,23 @@
 using Asp.Versioning;
 using CurrencyConverter.Api.Common;
 using CurrencyConverter.Api.Middlewares;
+using CurrencyConverter.Api.ModelBinders;
 using CurrencyConverter.Data;
 using CurrencyConverter.Data.Models;
 using CurrencyConverter.Services;
 using CurrencyConverter.Services.AppServices.Configuration.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 namespace CurrencyConverter.Api
@@ -51,7 +56,7 @@ namespace CurrencyConverter.Api
 
             // Add our custom services to services collection (for DI)
             CurrencyConverterServicesDiMapper.MapAppServices(builder.Services);
-
+         
             // Register Db Context
             RegisterDbContext(builder);
 
@@ -73,18 +78,18 @@ namespace CurrencyConverter.Api
             // Configure exception handling logic
             ConfigureExceptionsHandling(builder);
 
-            _ = builder.Services.Configure<ApiBehaviorOptions>(options =>
+            builder.Services.AddControllers(options =>
             {
-                options.SuppressModelStateInvalidFilter = true;
-            });
-
-            builder.Services.AddControllers();
+                options.ModelBinderProviders.Insert(0, new CustomDateTimeModelBinderProvider());
+            }); ;
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             WebApplication app = builder.Build();
+            // Let the app use our exception handling middleware
+            app.UseExceptionHandler();
 
             app.MapDefaultEndpoints();
 
@@ -92,9 +97,6 @@ namespace CurrencyConverter.Api
             // Use swagger documentations
             app.UseSwagger();
             app.UseSwaggerUI();
-
-            // Let the app use our exception handling middleware
-            app.UseExceptionHandler();
 
             if (app.Environment.IsDevelopment())
             {
@@ -251,13 +253,17 @@ namespace CurrencyConverter.Api
 #pragma warning restore EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         }
 
+        /// <summary>
+        /// Configure exception middleware and user problem details service
+        /// </summary>
+        /// <param name="builder"></param>
         private static void ConfigureExceptionsHandling(WebApplicationBuilder builder)
         {
+            // Register the custom writer
+            builder.Services.AddSingleton<IProblemDetailsWriter, CustomProblemDetailsWriter>();
+
             // Configure ProblemDetails approach 
-            builder.Services.AddProblemDetails(option =>
-            {
-                option.CustomizeProblemDetails = context => context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method}{context.HttpContext.Request.Path}";
-            });
+            builder.Services.AddProblemDetails();
 
             // Add our exception handling middleware
             builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
@@ -293,6 +299,11 @@ namespace CurrencyConverter.Api
                         Type = ReferenceType.SecurityScheme
                     }
                 };
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath); // include XML comments
+                c.DescribeAllParametersInCamelCase();
+                c.OrderActionsBy(x => x.RelativePath);
                 c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {

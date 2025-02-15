@@ -8,9 +8,7 @@ namespace CurrencyConverter.Api.Attributes.ActionFilters
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if ((context.HttpContext.Request.Method == HttpMethods.Post ||
-                context.HttpContext.Request.Method == HttpMethods.Put)
-                && !context.ModelState.IsValid)
+            if (!context.ModelState.IsValid)
             {
 
                 throw new ApiModelValidationException(context.ModelState);

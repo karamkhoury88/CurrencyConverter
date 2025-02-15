@@ -2,7 +2,7 @@
 using CurrencyConverter.ServiceDefaults.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
+namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Factories
 {
     public class CurrencyConverterFactory : ICurrencyConverterFactory
     {
@@ -13,12 +13,12 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
             _serviceProvider = serviceProvider;
         }
 
-        public ICurrencyConverterService GetConverter(string providerName = "Frankfurter")
+        public ICurrencyConverterService GetConverter(string providerName)
         {
-            return providerName switch
+            return providerName.ToLower() switch
             {
                 CurrencyConverterProviders.FRANKFURTER => _serviceProvider.GetRequiredService<FrankfurterCurrencyConverter>(),
-                _ => throw new AppException(errorCode: AppErrorCode.NOT_ALLOWED_OPERATION, $"Provider {providerName} is not supported.")
+                _ => throw new AppException(errorCode: AppErrorCode.NOT_ALLOWED_OPERATION, nonTechnicalMessage: $"The provider {providerName} is not supported, please contact the support for more information.", technicalMessage: $"Provider {providerName} is not supported.")
             };
         }
     }
