@@ -18,7 +18,7 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos
         [Required]
         public decimal ToAmount { get; set; }
 
-        [JsonPropertyName("fromCurrency")]
+        [JsonPropertyName("toCurrency")]
         [Required]
         public string ToCurrency { get; set; }
     }

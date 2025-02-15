@@ -15,7 +15,8 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
         private const string _latestRatesCacheKey = "LatestRates_{0}";
         private const string _latestRatesForSymbolCacheKey = "LatestRatesForSymbol_{0}_{1}";
 
-        
+        // TODO: Move banned currencies to the configurations.
+        private readonly ImmutableHashSet<string> _bannedCurrencies = ["TRY", "PLN", "THB", "MXN"];
 
         public FrankfurterCurrencyConverter(IHttpClientFactory httpClientFactory, HybridCache cache, IConfigurationService configurationService)
         {
@@ -48,9 +49,16 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
             //Else, Fetch the latest rate for base currency and filter to only one symbol (the target), cache it and convert based on it
 
             //Only fetches the value from cache; does not attempt to access the underlying data store.
-            GetLatestRatesServiceResponseDto baseCurrencyLatestRate = await _cache.GetOrCreateAsync<GetLatestRatesServiceResponseDto>(latestRatesCacheKey,
-                factory: null,
-                options: new HybridCacheEntryOptions() { Flags = HybridCacheEntryFlags.DisableUnderlyingData });
+
+
+            GetLatestRatesServiceResponseDto? baseCurrencyLatestRate = await _cache.GetOrCreateAsync<GetLatestRatesServiceResponseDto?>(latestRatesCacheKey,
+            factory: async cancel =>
+            {
+                // This factory runs ONLY if the key is NOT in the cache.
+                return default; // Return a default (do NOT cache this value)
+            },
+            cancellationToken: CancellationToken.None, // Optional,
+            options: new HybridCacheEntryOptions() { Flags = HybridCacheEntryFlags.DisableUnderlyingData });
 
             if (baseCurrencyLatestRate != null && baseCurrencyLatestRate.Rates.TryGetValue(targetCurrency, out targetCurrencyRate))
             {
@@ -64,13 +72,9 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
                 GetLatestRatesServiceResponseDto baseCurrencyLatestRateForSymbol = await _cache.GetOrCreateAsync(latestRatesForSymbolCacheKey,
                 async token =>
                 {
-                    var response = await _httpClient.GetAsync($"latest?base={baseCurrency}&symbols={targetCurrency}");
-                    response.EnsureSuccessStatusCode();
-
-                    GetLatestRatesServiceResponseDto svcResponse = await response.Content.ReadFromJsonAsync<GetLatestRatesServiceResponseDto>(cancellationToken: token)
-                    ?? throw new AppException(AppErrorCode.CURRENCY_CONVERTER_THIRD_PARTY_SYSTEM_FAILURE, "We are facing some troubles, please try again.");
-
-                    return svcResponse;
+                    return await EnsureSuccessStatusCodeAsync<GetLatestRatesServiceResponseDto>(
+                        await _httpClient.GetAsync($"latest?base={baseCurrency}&symbols={targetCurrency}", token),
+                        token);
                 },
                 options: new HybridCacheEntryOptions
                 {
@@ -102,11 +106,9 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
             return await _cache.GetOrCreateAsync(cacheKey,
                 async token =>
             {
-                var response = await _httpClient.GetAsync($"latest?base={baseCurrency}");
-                response.EnsureSuccessStatusCode();
-
-                GetLatestRatesServiceResponseDto svcResponse = await response.Content.ReadFromJsonAsync<GetLatestRatesServiceResponseDto>(cancellationToken: token)
-                ?? throw new AppException(AppErrorCode.CURRENCY_CONVERTER_THIRD_PARTY_SYSTEM_FAILURE, "We are facing some troubles, please try again.");
+                GetLatestRatesServiceResponseDto svcResponse = await EnsureSuccessStatusCodeAsync<GetLatestRatesServiceResponseDto>(
+                    await _httpClient.GetAsync($"latest?base={baseCurrency}", token),
+                    token);
 
                 // Filter out banned currencies from the response
                 foreach (var bannedCurrency in _bannedCurrencies)
@@ -131,6 +133,18 @@ namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
 
         private bool IsCurrencyBanned(string currency) => _bannedCurrencies.Contains(currency, StringComparer.OrdinalIgnoreCase);
 
+        private static async Task<T> EnsureSuccessStatusCodeAsync<T>(HttpResponseMessage? response, CancellationToken cancellationToken)
+        {
+            if (response is null || response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new AppException(AppErrorCode.CURRENCY_CONVERTER_THIRD_PARTY_SYSTEM_FAILURE, "We are facing some troubles, please try again.");
+            }
+
+            T? svcResponse = await response.Content.ReadFromJsonAsync<T>(cancellationToken);
+            return svcResponse is null
+                ? throw new AppException(AppErrorCode.CURRENCY_CONVERTER_THIRD_PARTY_SYSTEM_FAILURE, "We are facing some troubles, please try again.")
+                : svcResponse;
+        }
         #endregion
     }
 }
