@@ -28,6 +28,7 @@ The Currency Converter API provides reliable and efficient conversion between di
 - Ensure to have the following required secrets:
   - `"Kestrel:Certificates:Development:Password": "PASSWORD"`
   - `"CurrencyConverterConfiguration:Jwt:SecretKey": "HS256_Key"`
+- Make sure Docker Desktop is running before proceeding with the next steps.
 - Run the `CurrencyConverter.AppHost` project; this will automatically host the API and the Redis cache, and run the Aspire dashboard.
 
 ## Assumptions Made
