@@ -13,22 +13,33 @@ using System.Threading.RateLimiting;
 
 namespace Microsoft.Extensions.Hosting;
 
-// Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
-// This project should be referenced by each service project in your solution.
-// To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
+/// <summary>
+/// Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
+/// This project should be referenced by each service project in your solution.
+/// To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
+/// </summary>
 public static class Extensions
 {
+    /// <summary>
+    /// Adds default services for .NET Aspire applications, including OpenTelemetry, health checks, service discovery, and resilience.
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <returns>The host application builder for chaining.</returns>
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        // Configure OpenTelemetry for logging, metrics, and tracing.
         builder.ConfigureOpenTelemetry();
 
+        // Add default health checks.
         builder.AddDefaultHealthChecks();
 
         #region Builder Services Default
 
+        // Enable service discovery for resolving service endpoints.
         builder.Services.AddServiceDiscovery();
 
-        // Configure Rate Limiting
+        // Configure rate limiting to prevent abuse of the API.
+        // TODO: Update the README to mention rate limiting configuration.
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -36,20 +47,20 @@ public static class Extensions
             {
                 if (httpContext.User?.Identity?.IsAuthenticated == true)
                 {
-                    // Use user ID for authenticated users
+                    // Use user ID for authenticated users.
                     var userKey = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown-user";
 
                     return RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: userKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 15,
+                            PermitLimit = 200, // Allow 200 requests per minute for authenticated users.
                             Window = TimeSpan.FromMinutes(1)
                         });
                 }
                 else
                 {
-                    // Use IP address for non-authenticated users
+                    // Use IP address for non-authenticated users.
                     var ipKey = httpContext.Request.Headers["X-Forwarded-For"].ToString()
                                 ?? httpContext.Connection.RemoteIpAddress?.ToString()
                                 ?? "unknown-ip";
@@ -58,7 +69,7 @@ public static class Extensions
                         partitionKey: ipKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 5,
+                            PermitLimit = 100, // Allow 100 requests per minute for non-authenticated users.
                             Window = TimeSpan.FromMinutes(1)
                         });
                 }
@@ -69,80 +80,31 @@ public static class Extensions
 
         #region Http Clients Defaults
 
+        // Register the HTTP message logging handler.
         builder.Services.AddTransient<HttpMessageLoggingHandler>();
 
-        // Registers IHttpClientFactory and HttpClient
+        // Register IHttpClientFactory and HttpClient.
         builder.Services.AddHttpClient();
 
+        // Configure default settings for all HttpClient instances.
         builder.Services.ConfigureHttpClientDefaults(httpClientBuilder =>
         {
-            // Turn on resilience by default:
-            /*
-             Key Features of AddStandardResilienceHandler
-             Retry Policy:
-
-                 - Automatically retries failed requests with a backoff strategy (e.g., exponential backoff).
-                 - Helps handle transient errors like network glitches or temporary server unavailability.
-
-             Timeout Policy:
-
-                - Ensures that requests do not hang indefinitely by applying a timeout.
-
-             Circuit Breaker:
-
-                - Prevents overwhelming a failing service by temporarily stopping requests if a certain threshold of failures is reached.
-
-             Rate Limiting:
-
-                - Limits the number of requests sent to a service to avoid overloading it.
-
-            Defaults:
-            1 - Rate limiter:
-            The rate limiter pipeline limits the maximum number of concurrent requests being sent to the dependency.	
-            Queue: 0
-			Permit: 1_000
-
-
-            2 - Total timeout:
-            The total request timeout pipeline applies an overall timeout to the execution, ensuring that the request, including retry attempts, doesn't exceed the configured limit.	
-            Total timeout: 30s
-           
-            3 - Retry:
-            The retry pipeline retries the request in case the dependency is slow or returns a transient error.
-            Max retries: 3
-			Backoff: Exponential
-			Use jitter: true
-			Delay:2s
-
-            4 - Circuit breaker:	
-            The circuit breaker blocks the execution if too many direct failures or timeouts are detected.	
-            Failure ratio: 10%
-			Min throughput: 100
-			Sampling duration: 30s
-			Break duration: 5s
-
-           5 - Attempt timeout:
-            The attempt timeout pipeline limits each request attempt duration and throws if it's exceeded.	
-            Attempt timeout: 10s
-
-
-            */
+            // Enable resilience by default (retry, timeout, circuit breaker, rate limiting).
+            // https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             httpClientBuilder.AddStandardResilienceHandler();
 
-            // Turn on service discovery by default
+            // Enable service discovery for resolving service endpoints.
             httpClientBuilder.AddServiceDiscovery();
 
-            // Configure HttpClient with logging
-
+            // Add the HTTP message logging handler to all HttpClient instances.
             httpClientBuilder.AddHttpMessageHandler<HttpMessageLoggingHandler>();
 
-            // Configure Http Clients defaults
+            // Configure default headers for all HttpClient instances.
             httpClientBuilder.ConfigureHttpClient(client =>
             {
-                // Generate or retrieve a correlation ID
+                // Add a correlation ID to track requests across services.
                 var correlationId = Guid.NewGuid().ToString();
                 client.DefaultRequestHeaders.Add("X-Correlation-ID", correlationId);
-
             });
         });
 
@@ -151,25 +113,35 @@ public static class Extensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds default health checks to the application.
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <returns>The host application builder for chaining.</returns>
     public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        // Add a default health check to ensure the application is responsive.
         builder.Services.AddHealthChecks()
-        // Add a default liveness check to ensure app is responsive
-        .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
     }
 
+    /// <summary>
+    /// Maps default endpoints for health checks in development environments.
+    /// </summary>
+    /// <param name="app">The web application.</param>
+    /// <returns>The web application for chaining.</returns>
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         // Adding health checks endpoints to applications in non-development environments has security implications.
         // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
         if (app.Environment.IsDevelopment())
         {
-            // All health checks must pass for app to be considered ready to accept traffic after starting
+            // Map a health check endpoint to ensure the application is ready to accept traffic.
             app.MapHealthChecks("/health");
 
-            // Only health checks tagged with the "live" tag must pass for app to be considered alive
+            // Map a liveness endpoint to ensure the application is alive.
             app.MapHealthChecks("/alive", new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")
@@ -181,51 +153,59 @@ public static class Extensions
 
     #region Privates
 
+    /// <summary>
+    /// Configures OpenTelemetry for logging, metrics, and tracing.
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <returns>The host application builder for chaining.</returns>
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        // Configure OpenTelemetry logging.
         builder.Logging.AddOpenTelemetry(logging =>
         {
-            // Include the formatted message in the log records
-            logging.IncludeFormattedMessage = true;
-
-            // Include log scopes (additional context) in the log records
-            logging.IncludeScopes = true;
-
-            // Parse and include structured log state values in the log records
-            logging.ParseStateValues = true;
+            logging.IncludeFormattedMessage = true; // Include formatted log messages.
+            logging.IncludeScopes = true; // Include log scopes (additional context).
+            logging.ParseStateValues = true; // Parse and include structured log state values.
         });
 
+        // Configure OpenTelemetry metrics and tracing.
         builder.Services.AddOpenTelemetry()
-        .WithMetrics(metrics =>
-        {
-            metrics.AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddRuntimeInstrumentation();
-        })
-        .WithTracing(tracing =>
-        {
-            tracing.AddSource(builder.Environment.ApplicationName)
-                .AddAspNetCoreInstrumentation()
-                // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
-                //.AddGrpcClientInstrumentation()
-                .AddHttpClientInstrumentation();
-        });
+            .WithMetrics(metrics =>
+            {
+                metrics.AddAspNetCoreInstrumentation() // Instrument ASP.NET Core metrics.
+                    .AddHttpClientInstrumentation() // Instrument HttpClient metrics.
+                    .AddRuntimeInstrumentation(); // Instrument .NET runtime metrics.
+            })
+            .WithTracing(tracing =>
+            {
+                tracing.AddSource(builder.Environment.ApplicationName) // Add the application name as a trace source.
+                    .AddAspNetCoreInstrumentation() // Instrument ASP.NET Core tracing.
+                    .AddHttpClientInstrumentation(); // Instrument HttpClient tracing.
+            });
 
+        // Add OpenTelemetry exporters (e.g., OTLP, Azure Monitor).
         builder.AddOpenTelemetryExporters();
 
         return builder;
     }
 
+    /// <summary>
+    /// Adds OpenTelemetry exporters based on configuration.
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <returns>The host application builder for chaining.</returns>
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        // Check if the OTLP exporter endpoint is configured.
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
         if (useOtlpExporter)
         {
+            // Use the OTLP exporter if configured.
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
 
-        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
+        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package).
         //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
         //{
         //    builder.Services.AddOpenTelemetry()

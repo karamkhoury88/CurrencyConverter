@@ -1,4 +1,3 @@
-
 using Asp.Versioning;
 using CurrencyConverter.Api.Common;
 using CurrencyConverter.Api.Middlewares;
@@ -19,7 +18,7 @@ using System.Text;
 
 namespace CurrencyConverter.Api
 {
-    public class Program
+    public partial class Program
     {
         public async static Task Main(string[] args)
         {
@@ -28,131 +27,131 @@ namespace CurrencyConverter.Api
             // Apply Aspire Service Defaults
             builder.AddServiceDefaults();
 
-            //TODO: README file For production, we need to use Azure Key Vault to store the secrets.
+            // TODO: README file - For production, use Azure Key Vault to store secrets.
 
             #region Configuration
-            // TODO: Mention ASPNETCORE_ENVIRONMENT is the readme 
+            // TODO: Mention ASPNETCORE_ENVIRONMENT in the README file.
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            // Load configuration from multiple sources depending on the environment (Dev, Test and Production )
+            // Load configuration from multiple sources depending on the environment (Dev, Test, Production).
             builder.Configuration
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
                 .AddUserSecrets<Program>()
                 .AddEnvironmentVariables();
 
-            // Get CurrencyConverterConfiguration section from configuration and validate it
+            // Get CurrencyConverterConfiguration section from configuration and validate it.
             CurrencyConverterConfigurationDto configuration = builder.Configuration.GetSection("CurrencyConverterConfiguration").Get<CurrencyConverterConfigurationDto>()
-            ?? throw new InvalidConfigurationException("CurrencyConverter root Configuration node is missing");
+                ?? throw new InvalidConfigurationException("CurrencyConverter root Configuration node is missing");
             configuration.Validate();
 
             #endregion
 
-            // Add our custom services to services collection (for DI)
+            // Add custom services to the dependency injection container.
             CurrencyConverterServicesDiMapper.MapAppServices(builder.Services);
-         
-            // Register Db Context
+
+            // Register the database context.
             RegisterDbContext(builder);
 
-            // Adds the default identity system configuration for the specified User and Role types.  
+            // Configure the identity system for user and role management.
             AddIdentitySystem(builder);
 
-            //Configure JWT authentication and add authorization policies
+            // Configure JWT authentication and authorization policies.
             ConfigureJwtAuthenticationAndAuthorizationPolicies(builder, configuration.Jwt);
 
-            // Configure API versioning 
+            // Configure API versioning.
             ConfigureApiVersioning(builder);
 
-            // Configure Caching layer
+            // Configure caching for improved performance.
             ConfigureCaching(builder);
 
-            // Add Swagger with JWT auth support
+            // Configure Swagger for API documentation.
             ConfigureSwagger(builder);
 
-            // Configure exception handling logic
+            // Configure exception handling middleware.
             ConfigureExceptionsHandling(builder);
 
+            // Add controllers with custom model binders.
             builder.Services.AddControllers(options =>
             {
                 options.ModelBinderProviders.Insert(0, new CustomDateTimeModelBinderProvider());
-            }); ;
+            });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Add API explorer and Swagger support.
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             WebApplication app = builder.Build();
-            // Let the app use our exception handling middleware
+
+            // Use custom exception handling middleware.
             app.UseExceptionHandler();
 
+            // Map default endpoints for the application.
             app.MapDefaultEndpoints();
 
             // Configure the HTTP request pipeline.
-            // Use swagger documentations
             app.UseSwagger();
             app.UseSwaggerUI();
 
             if (app.Environment.IsDevelopment())
             {
-                // Seed Identity Initial Data
-                // TODO: README file - Mention this point 
+                // Seed initial identity data (users and roles) for development.
                 await SeedIdentityInitialData(app);
             }
             else
             {
                 #region Enforce HTTPS
 
-                // HSTS Middleware (UseHsts) to send HTTP Strict Transport Security Protocol (HSTS) headers to clients.
-                // The default HSTS value is 30 days. we may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // Use HSTS to enforce HTTPS in production.
                 app.UseHsts();
 
-                //  Adds middleware for redirecting HTTP Requests to HTTPS.
+                // Redirect HTTP requests to HTTPS.
                 app.UseHttpsRedirection();
 
                 #endregion
             }
 
-            // Adds Authentication Middleware to enable authentication capabilities.
+            // Enable authentication and authorization.
             app.UseAuthentication();
-
-            // Adds Authorization Middleware to enable Authorization capabilities.
             app.UseAuthorization();
 
-            // Apply rate limiter globally
+            // Apply rate limiting globally.
             app.UseRateLimiter();
 
+            // Map controllers to endpoints.
             app.MapControllers();
 
             #region Custom Middlewares
 
-            // Http Request Logging
+            // Use custom middleware for HTTP request logging.
             app.UseMiddleware<HttpRequestLoggingMiddleware>();
 
             #endregion
 
+            // Run the application.
             await app.RunAsync();
         }
 
-        #region Privates 
+        #region Privates
 
         /// <summary>
-        ///  Register CurrencyConverter DbContext
+        /// Registers the database context for the application.
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="configuration"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void RegisterDbContext(WebApplicationBuilder builder)
         {
-            // TODO: README file - Mention this point 
+            // Use an in-memory database for development.
             if (builder.Environment.IsDevelopment())
             {
                 builder.Services.AddDbContext<CurrencyConverterDbContext>(options =>
-                options.UseInMemoryDatabase("CurrencyConverterDb"));
+                    options.UseInMemoryDatabase("CurrencyConverterDb"));
             }
             else
             {
+                // Use a SQL Server database for production.
                 // builder.Services.AddDbContext<CurrencyConverterDbContext>(options => options.UseSqlServer(configuration.ConnectionStrings.DbConnection));
 
-                //TODO: Apply Database Migrations
+                // TODO: Apply database migrations in production.
                 /*
                  * Run the following commands in the Package Manager Console to create and apply migrations:
                  * 1- Add a migration: "Add-Migration InitialIdentitySchema"
@@ -162,9 +161,9 @@ namespace CurrencyConverter.Api
         }
 
         /// <summary>
-        /// Adds the default identity system configuration for the specified User and Role types.
+        /// Configures the identity system for user and role management.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void AddIdentitySystem(WebApplicationBuilder builder)
         {
             builder.Services.AddIdentity<CurrencyConverterUser, IdentityRole>()
@@ -173,16 +172,16 @@ namespace CurrencyConverter.Api
         }
 
         /// <summary>
-        ///  Configure Jwt Authentication And Authorization Policies
+        /// Configures JWT authentication and authorization policies.
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="configuration"></param>
+        /// <param name="builder">The web application builder.</param>
+        /// <param name="configuration">The JWT configuration settings.</param>
         private static void ConfigureJwtAuthenticationAndAuthorizationPolicies(WebApplicationBuilder builder, JwtConfigurationDto configuration)
         {
-
-            // convert the secretKey string value to bytes array
+            // Convert the secret key to a byte array.
             byte[] key = Encoding.ASCII.GetBytes(configuration.SecretKey);
 
+            // Configure JWT authentication.
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -201,7 +200,8 @@ namespace CurrencyConverter.Api
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
-            //  Add Authorization Policies
+
+            // Add authorization policies for roles.
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy(CurrencyConverterAuthorizationPolicy.USER, policy => policy.RequireRole(CurrencyConverterAuthorizationRole.USER));
@@ -210,59 +210,60 @@ namespace CurrencyConverter.Api
         }
 
         /// <summary>
-        /// Configure Api Versioning to support both URL-Based Versioning and Header-Based Versioning
+        /// Configures API versioning for the application.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void ConfigureApiVersioning(WebApplicationBuilder builder)
         {
             builder.Services.AddApiVersioning(option =>
             {
-                option.AssumeDefaultVersionWhenUnspecified = true; //This ensures if client doesn't specify an API version. The default version should be considered. 
-                option.DefaultApiVersion = new ApiVersion(1, 0); //This we set the default API version
-                option.ReportApiVersions = true; //The allow the API Version information to be reported in the client  in the response header. This will be useful for the client to understand the version of the API they are interacting with.
+                option.AssumeDefaultVersionWhenUnspecified = true; // Use the default version if none is specified.
+                option.DefaultApiVersion = new ApiVersion(1, 0); // Set the default API version.
+                option.ReportApiVersions = true; // Report API versions in the response headers.
 
-                //This says how the API version should be read from the client's request, 
-                //a custom header named "api-version", to be set with version number in client before request the endpoints.
-                //or in the url
+                // Combine URL-based and header-based versioning.
                 option.ApiVersionReader = ApiVersionReader.Combine(
                     new UrlSegmentApiVersionReader(),
                     new HeaderApiVersionReader(CurrencyConverterCustomHeader.API_VERSION));
             })
-                .AddApiExplorer(options =>
-                {
-                    options.GroupNameFormat = "'v'VVV"; //The format of version number “‘v’major[.minor][-status]”
-                    options.SubstituteApiVersionInUrl = true; //This will help us to resolve the ambiguity when there is a routing conflict due to routing template one or more end points are same.
-                });
+            .AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV"; // Format for version numbers.
+                options.SubstituteApiVersionInUrl = true; // Resolve routing conflicts.
+            });
         }
 
         /// <summary>
-        /// Add Caching layer to our system, to boost the performance
+        /// Configures caching for improved performance.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void ConfigureCaching(WebApplicationBuilder builder)
         {
+            // Add Redis distributed caching.
             builder.AddRedisDistributedCache("distributedCache");
+
+            // Add hybrid caching (in-memory + distributed).
 #pragma warning disable EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             builder.Services.AddHybridCache();
 #pragma warning restore EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         }
 
         /// <summary>
-        /// Configure exception middleware and user problem details service
+        /// Configures exception handling middleware and problem details service.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void ConfigureExceptionsHandling(WebApplicationBuilder builder)
         {
-            // Register the custom writer
+            // Register the custom problem details writer.
             builder.Services.AddSingleton<IProblemDetailsWriter, CustomProblemDetailsWriter>();
 
-            // Configure ProblemDetails approach 
+            // Configure problem details for error responses.
             builder.Services.AddProblemDetails();
 
-            // Add our exception handling middleware
+            // Add custom exception handling middleware.
             builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
 
-            // Suppress Automatic model validation
+            // Suppress automatic model validation errors.
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -270,15 +271,16 @@ namespace CurrencyConverter.Api
         }
 
         /// <summary>
-        /// Configure Swagger documentation that support JWT authentication
+        /// Configures Swagger for API documentation with JWT authentication support.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The web application builder.</param>
         private static void ConfigureSwagger(WebApplicationBuilder builder)
         {
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Currency Converter API", Version = "v1" });
 
+                // Configure JWT authentication in Swagger.
                 var securityScheme = new OpenApiSecurityScheme
                 {
                     Name = "JWT Authentication",
@@ -293,9 +295,13 @@ namespace CurrencyConverter.Api
                         Type = ReferenceType.SecurityScheme
                     }
                 };
+
+                // Include XML comments in Swagger documentation.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath); // include XML comments
+                c.IncludeXmlComments(xmlPath);
+
+                // Configure Swagger options.
                 c.DescribeAllParametersInCamelCase();
                 c.OrderActionsBy(x => x.RelativePath);
                 c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
@@ -308,12 +314,10 @@ namespace CurrencyConverter.Api
             });
         }
 
-
         /// <summary>
-        /// Seed some initial users and roles into the in-memory database
+        /// Seeds initial identity data (users and roles) into the database.
         /// </summary>
-        /// <param name="app"></param>
-        /// <returns></returns>
+        /// <param name="app">The web application.</param>
         private static async Task SeedIdentityInitialData(WebApplication app)
         {
             using var scope = app.Services.CreateScope();
@@ -322,7 +326,7 @@ namespace CurrencyConverter.Api
             var userManager = services.GetRequiredService<UserManager<CurrencyConverterUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Seed roles
+            // Seed roles.
             if (!await roleManager.RoleExistsAsync(CurrencyConverterAuthorizationRole.ADMIN))
             {
                 await roleManager.CreateAsync(new IdentityRole(CurrencyConverterAuthorizationRole.ADMIN));
@@ -332,7 +336,7 @@ namespace CurrencyConverter.Api
                 await roleManager.CreateAsync(new IdentityRole(CurrencyConverterAuthorizationRole.USER));
             }
 
-            // Seed an admin user
+            // Seed an admin user.
             var adminUser = new CurrencyConverterUser { UserName = "admin1@currencyconverter.com", Email = "admin1@currencyconverter.com" };
             if (await userManager.FindByEmailAsync(adminUser.Email) == null)
             {
@@ -340,7 +344,7 @@ namespace CurrencyConverter.Api
                 await userManager.AddToRoleAsync(adminUser, CurrencyConverterAuthorizationRole.ADMIN);
             }
 
-            // Seed a regular user
+            // Seed a regular user.
             var regularUser = new CurrencyConverterUser { UserName = "user1@currencyconverter.com", Email = "user1@currencyconverter.com" };
             if (await userManager.FindByEmailAsync(regularUser.Email) == null)
             {
@@ -349,6 +353,6 @@ namespace CurrencyConverter.Api
             }
         }
 
-        #endregion 
+        #endregion
     }
 }
