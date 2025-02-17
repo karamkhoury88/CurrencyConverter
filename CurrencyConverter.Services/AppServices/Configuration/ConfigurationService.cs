@@ -1,6 +1,8 @@
-﻿using CurrencyConverter.Services.AppServices.Configuration.Dtos;
+﻿using System.Runtime.CompilerServices;
+using CurrencyConverter.Services.AppServices.Configuration.Dtos;
 using Microsoft.Extensions.Configuration;
 
+[assembly: InternalsVisibleTo("CurrencyConverter.Tests")]
 namespace CurrencyConverter.Services.AppServices.Configuration
 {
     /// <summary>
@@ -22,8 +24,9 @@ namespace CurrencyConverter.Services.AppServices.Configuration
         public ConfigurationService(IConfiguration configuration)
         {
             // Bind the "CurrencyConverterConfiguration" section to a strongly-typed object.
-            CurrencyConverterConfigurationDto? currencyConverterConfiguration = new CurrencyConverterConfigurationDto();
-            configuration.GetSection("CurrencyConverterConfiguration").Bind(currencyConverterConfiguration);
+            var section = configuration.GetSection("CurrencyConverterConfiguration");
+            var currencyConverterConfiguration = new CurrencyConverterConfigurationDto();
+            Bind(section, currencyConverterConfiguration);
 
             // Ensure the configuration section is not null.
             if (currencyConverterConfiguration == null)
@@ -37,5 +40,19 @@ namespace CurrencyConverter.Services.AppServices.Configuration
             // Assign the validated configuration to the Config property.
             Config = currencyConverterConfiguration;
         }
+
+        /// <summary>
+        /// Binds the configuration section to the specified instance.
+        /// </summary>
+        /// <typeparam name="T">The type of the instance to bind to.</typeparam>
+        /// <param name="section">The configuration section containing the data to bind.</param>
+        /// <param name="instance">The instance of the type to bind the configuration data to.</param>
+        private static void Bind<T>(IConfigurationSection section, T instance)
+        {
+            // The Bind method binds the configuration data from the specified section to the given instance.
+            // This extension method is provided by the Microsoft.Extensions.Configuration.Binder namespace.
+            section.Bind(instance);
+        }
+
     }
 }

@@ -7,14 +7,16 @@ using CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.Frankf
 using Microsoft.Extensions.Caching.Hybrid;
 using System.Collections.Immutable;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CurrencyConverter.Tests")]
 namespace CurrencyConverter.Services.HttpBasedServices.CurrencyConverter
 {
     /// <summary>
     /// Service for converting currencies using the Frankfurter API.
     /// Implements the <see cref="ICurrencyConverterService"/> interface.
     /// </summary>
-    public class FrankfurterCurrencyConverterService : ICurrencyConverterService
+    internal class FrankfurterCurrencyConverterService : ICurrencyConverterService
     {
         private readonly HttpClient _httpClient; // HTTP client for making API requests
         private readonly ICustomizedHybridCacheService _cache; // Cache service for storing rates

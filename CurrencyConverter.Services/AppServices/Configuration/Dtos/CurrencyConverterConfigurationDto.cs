@@ -27,5 +27,12 @@ namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
         [JsonPropertyName("CurrencyConverterThirdPartyApi")]
         [Required]
         public CurrencyConverterThirdPartyApiConfigurationDto CurrencyConverterThirdPartyApi { get; set; }
+
+        /// <summary>
+        /// The settings for API circuit breaker pattern to handle and manage request failures.
+        /// </summary>
+        [JsonPropertyName("CircuitBreaker")]
+        [Required]
+        public CircuitBreakerConfigurationDto CircuitBreaker { get; set; }
     }
 }

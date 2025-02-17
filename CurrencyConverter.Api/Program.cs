@@ -123,6 +123,9 @@ namespace CurrencyConverter.Api
 
             #region Custom Middlewares
 
+            // Use custom middleware Circuit Breaker.
+            app.UseMiddleware<CircuitBreakerMiddleware>();
+
             // Use custom middleware for HTTP request logging.
             app.UseMiddleware<HttpRequestLoggingMiddleware>();
 
