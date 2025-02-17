@@ -60,6 +60,7 @@ A robust, scalable, and maintainable currency conversion API using C# and ASP.NE
 
 ## Test Coverage Areas
 - Auth Controler 
-- Currency Converter Conroller
+- Currency Converter Controller
 - Currency Converter Factory
 - Frankfurter Integration Service
+- Configuration Service
