@@ -14,6 +14,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["CurrencyConverter.Api/CurrencyConverter.Api.csproj", "CurrencyConverter.Api/"]
 COPY ["CurrencyConverter.Data/CurrencyConverter.Data.csproj", "CurrencyConverter.Data/"]
+COPY ["CurrencyConverter.ServiceDefaults/CurrencyConverter.ServiceDefaults.csproj", "CurrencyConverter.ServiceDefaults/"]
 COPY ["CurrencyConverter.Services/CurrencyConverter.Services.csproj", "CurrencyConverter.Services/"]
 RUN dotnet restore "./CurrencyConverter.Api/CurrencyConverter.Api.csproj"
 COPY . .
