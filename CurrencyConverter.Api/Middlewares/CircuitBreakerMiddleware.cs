@@ -1,4 +1,8 @@
-﻿using CurrencyConverter.Services.AppServices.Configuration;
+﻿using CurrencyConverter.Api.Common.Helpers;
+using CurrencyConverter.ServiceDefaults.Exceptions;
+using CurrencyConverter.Services.AppServices.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace CurrencyConverter.Api.Middlewares
 {
@@ -8,6 +12,8 @@ namespace CurrencyConverter.Api.Middlewares
     public class CircuitBreakerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<CircuitBreakerMiddleware> _logger;
+
 
         /// <summary>
         /// Represents the current state of the circuit breaker.
@@ -44,9 +50,10 @@ namespace CurrencyConverter.Api.Middlewares
         /// </summary>
         /// <param name="next">The next middleware in the pipeline.</param>
         /// <param name="configuration">The configuration service to fetch the settings</param>
-        public CircuitBreakerMiddleware(RequestDelegate next, IConfigurationService configuration)
+        public CircuitBreakerMiddleware(RequestDelegate next, IConfigurationService configuration, ILogger<CircuitBreakerMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
             _failureThreshold = configuration.Config.CircuitBreaker.FailureThreshold;
             _circuitOpenDuration = TimeSpan.FromSeconds(configuration.Config.CircuitBreaker.CircuitOpenDuration);
             _halfOpenDuration = TimeSpan.FromSeconds(configuration.Config.CircuitBreaker.HalfOpenDuration);
@@ -67,11 +74,13 @@ namespace CurrencyConverter.Api.Middlewares
                     {
                         // Transition to the HalfOpen state
                         _state = CircuitBreakerState.HalfOpen;
+                        _logger.LogInformation("The circuit is half open.");
                         _lastStateChangeTime = DateTime.UtcNow;
                     }
                     else
                     {
                         // Respond with 503 Service Unavailable
+                        _logger.LogError("503 Service Unavailable, the circuit is open.");
                         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                         await context.Response.WriteAsync("Please try again later.");
                         return;
@@ -84,6 +93,8 @@ namespace CurrencyConverter.Api.Middlewares
                     {
                         // Transition to the Closed state
                         _state = CircuitBreakerState.Closed;
+                        _logger.LogInformation("The circuit is close.");
+
                         _lastStateChangeTime = DateTime.UtcNow;
                         _failureCount = 0;
                     }
@@ -99,6 +110,7 @@ namespace CurrencyConverter.Api.Middlewares
                 if (_state == CircuitBreakerState.HalfOpen)
                 {
                     _state = CircuitBreakerState.Closed;
+                    _logger.LogInformation("The circuit is close.");
                     _failureCount = 0;
                     _lastStateChangeTime = DateTime.UtcNow;
                 }
@@ -111,12 +123,15 @@ namespace CurrencyConverter.Api.Middlewares
                 {
                     // Transition to the Open state if failure threshold is reached
                     _state = CircuitBreakerState.Open;
+                    _logger.LogInformation("The circuit is open.");
                     _lastStateChangeTime = DateTime.UtcNow;
+
                 }
                 else if (_state == CircuitBreakerState.HalfOpen)
                 {
                     // Transition to the Open state if in HalfOpen state and an exception occurs
                     _state = CircuitBreakerState.Open;
+                    _logger.LogInformation("The circuit is open.");
                     _lastStateChangeTime = DateTime.UtcNow;
                 }
                 throw;
