@@ -39,7 +39,22 @@ public static class Extensions
         builder.Services.AddServiceDiscovery();
 
         // Configure rate limiting to prevent abuse of the API.
-        // TODO: Update the README to mention rate limiting configuration.
+
+        // Access the configuration values using the configuration keys
+        var configuration = builder.Configuration;
+
+        // Default values
+        int defaultUserPermitLimit = 200;
+        int defaultUserWindow = 1;
+        int defaultIpPermitLimit = 100;
+        int defaultIpWindow = 1;
+
+        // Read configuration values using TryParse with default values
+        int userPermitLimit = int.TryParse(configuration["CurrencyConverterConfiguration:RateLimiting:User:PermitLimit"], out var userPermit) ? userPermit : defaultUserPermitLimit;
+        int userWindow = int.TryParse(configuration["CurrencyConverterConfiguration:RateLimiting:User:Window"], out var userWin) ? userWin : defaultUserWindow;
+        int ipPermitLimit = int.TryParse(configuration["CurrencyConverterConfiguration:RateLimiting:Ip:PermitLimit"], out var ipPermit) ? ipPermit : defaultIpPermitLimit;
+        int ipWindow = int.TryParse(configuration["CurrencyConverterConfiguration:RateLimiting:Ip:Window"], out var ipWin) ? ipWin : defaultIpWindow;
+
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -54,8 +69,8 @@ public static class Extensions
                         partitionKey: userKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 200, // Allow 200 requests per minute for authenticated users.
-                            Window = TimeSpan.FromMinutes(1)
+                            PermitLimit = userPermitLimit, // Allow x requests per minute for authenticated users.
+                            Window = TimeSpan.FromMinutes(userWindow)
                         });
                 }
                 else
@@ -69,8 +84,8 @@ public static class Extensions
                         partitionKey: ipKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 100, // Allow 100 requests per minute for non-authenticated users.
-                            Window = TimeSpan.FromMinutes(1)
+                            PermitLimit = ipPermitLimit, // Allow x requests per minute for non-authenticated users.
+                            Window = TimeSpan.FromMinutes(ipWindow)
                         });
                 }
             });

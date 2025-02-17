@@ -36,4 +36,6 @@ namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
         [Required]
         public int ExpireDays { get; set; }
     }
+
+
 }

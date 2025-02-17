@@ -34,5 +34,12 @@ namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
         [JsonPropertyName("CircuitBreaker")]
         [Required]
         public CircuitBreakerConfigurationDto CircuitBreaker { get; set; }
+
+        /// <summary>
+        /// Represents the rate limiting settings for the application.
+        /// </summary>
+        [JsonPropertyName("RateLimiting")]
+        [Required]
+        public RateLimitingConfigurationDto RateLimiting { get; set; }
     }
 }

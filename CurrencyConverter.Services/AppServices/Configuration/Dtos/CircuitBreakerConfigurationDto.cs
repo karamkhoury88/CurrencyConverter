@@ -15,13 +15,13 @@ namespace CurrencyConverter.Services.AppServices.Configuration.Dtos
         public int FailureThreshold { get; set; } = 100;
 
         /// <summary>
-        /// Duration for which the circuit remains open before transitioning to half-open.
+        /// Duration for which the circuit remains open before transitioning to half-open in seconds.
         /// </summary>
         [JsonPropertyName("CircuitOpenDuration")]
         public int CircuitOpenDuration { get; set; } = 5;
 
         /// <summary>
-        /// Duration for which the circuit remains half-open before transitioning to closed.
+        /// Duration for which the circuit remains half-open before transitioning to closed in seconds.
         /// </summary>
         [JsonPropertyName("HalfOpenDuration")]
         public int HalfOpenDuration { get; set; } = 2;

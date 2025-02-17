@@ -24,13 +24,8 @@ namespace CurrencyConverter.Api
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Apply Aspire Service Defaults
-            builder.AddServiceDefaults();
-
-            // TODO: README file - For production, use Azure Key Vault to store secrets.
-
             #region Configuration
-            // TODO: Mention ASPNETCORE_ENVIRONMENT in the README file.
+
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             // Load configuration from multiple sources depending on the environment (Dev, Test, Production).
@@ -46,6 +41,9 @@ namespace CurrencyConverter.Api
             configuration.Validate();
 
             #endregion
+
+            // Apply Aspire Service Defaults
+            builder.AddServiceDefaults();
 
             // Add custom services to the dependency injection container.
             CurrencyConverterServicesDiMapper.MapAppServices(builder.Services);
