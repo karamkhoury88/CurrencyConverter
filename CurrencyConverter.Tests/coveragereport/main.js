@@ -222,7 +222,8 @@ var assemblies = [
     "name": "CurrencyConverter.Api",
     "classes": [
       { "name": "CurrencyConverter.Api.Attributes.ActionFilters.ValidateModelAttribute", "rp": "CurrencyConverter.Api_ValidateModelAttribute.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 18, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.Common.Exceptions.ApiModelValidationException", "rp": "CurrencyConverter.Api_ApiModelValidationException.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Common.Exceptions.ApiModelValidationException", "rp": "CurrencyConverter.Api_ApiModelValidationException.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Common.Helpers.HttpContextHelper", "rp": "CurrencyConverter.Api_HttpContextHelper.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 28, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Controllers.AuthController", "rp": "CurrencyConverter.Api_AuthController.html", "cl": 0, "ucl": 51, "cal": 51, "tl": 126, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Controllers.CurrencyConverterController", "rp": "CurrencyConverter.Api_CurrencyConverterController.html", "cl": 0, "ucl": 43, "cal": 43, "tl": 132, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Dtos.Auth.Requests.LoginRequestDto", "rp": "CurrencyConverter.Api_LoginRequestDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -230,14 +231,15 @@ var assemblies = [
       { "name": "CurrencyConverter.Api.Dtos.Auth.Responses.LoginResponseAppDto", "rp": "CurrencyConverter.Api_LoginResponseAppDto.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Dtos.Bases.Responses.BaseResponseAppDTO", "rp": "CurrencyConverter.Api_BaseResponseAppDTO.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Dtos.CurrencyConverter.Responses.ConvertResponseAppDto", "rp": "CurrencyConverter.Api_ConvertResponseAppDto.html", "cl": 4, "ucl": 9, "cal": 13, "tl": 57, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.Dtos.CurrencyConverter.Responses.GetHistoricalRatesResponseAppDto", "rp": "CurrencyConverter.Api_GetHistoricalRatesResponseAppDto.html", "cl": 7, "ucl": 13, "cal": 20, "tl": 81, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Dtos.CurrencyConverter.Responses.GetHistoricalRatesResponseAppDto", "rp": "CurrencyConverter.Api_GetHistoricalRatesResponseAppDto.html", "cl": 7, "ucl": 12, "cal": 19, "tl": 81, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Dtos.CurrencyConverter.Responses.GetLatestRatesResponseAppDto", "rp": "CurrencyConverter.Api_GetLatestRatesResponseAppDto.html", "cl": 3, "ucl": 8, "cal": 11, "tl": 49, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.Middlewares.CustomProblemDetailsWriter", "rp": "CurrencyConverter.Api_CustomProblemDetailsWriter.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 171, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.Middlewares.ExceptionHandlingMiddleware", "rp": "CurrencyConverter.Api_ExceptionHandlingMiddleware.html", "cl": 0, "ucl": 91, "cal": 91, "tl": 171, "cb": 0, "tb": 20, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Middlewares.CircuitBreakerMiddleware", "rp": "CurrencyConverter.Api_CircuitBreakerMiddleware.html", "cl": 0, "ucl": 59, "cal": 59, "tl": 151, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Middlewares.CustomProblemDetailsWriter", "rp": "CurrencyConverter.Api_CustomProblemDetailsWriter.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 40, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Middlewares.ExceptionHandlingMiddleware", "rp": "CurrencyConverter.Api_ExceptionHandlingMiddleware.html", "cl": 0, "ucl": 88, "cal": 88, "tl": 171, "cb": 0, "tb": 16, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.Middlewares.HttpRequestLoggingMiddleware", "rp": "CurrencyConverter.Api_HttpRequestLoggingMiddleware.html", "cl": 0, "ucl": 19, "cal": 19, "tl": 57, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Api.ModelBinders.CustomDateTimeModelBinder", "rp": "CurrencyConverter.Api_CustomDateTimeModelBinder.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 54, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.ModelBinders.CustomDateTimeModelBinderProvider", "rp": "CurrencyConverter.Api_CustomDateTimeModelBinderProvider.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 54, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Api.Program", "rp": "CurrencyConverter.Api_Program.html", "cl": 0, "ucl": 178, "cal": 178, "tl": 361, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.ModelBinders.CustomDateTimeModelBinderProvider", "rp": "CurrencyConverter.Api_CustomDateTimeModelBinderProvider.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 30, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Api.Program", "rp": "CurrencyConverter.Api_Program.html", "cl": 0, "ucl": 182, "cal": 182, "tl": 359, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "CurrencyConverter.AppHost",
@@ -247,7 +249,7 @@ var assemblies = [
   {
     "name": "CurrencyConverter.Data",
     "classes": [
-      { "name": "CurrencyConverter.Data.CurrencyConverterDbContext", "rp": "CurrencyConverter.Data_CurrencyConverterDbContext.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Data.CurrencyConverterDbContext", "rp": "CurrencyConverter.Data_CurrencyConverterDbContext.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "CurrencyConverter.ServiceDefaults",
@@ -255,18 +257,22 @@ var assemblies = [
       { "name": "CurrencyConverter.ServiceDefaults.Exceptions.AppException", "rp": "CurrencyConverter.ServiceDefaults_AppException.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 37, "cb": 3, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.ServiceDefaults.Handlers.HttpMessageLoggingHandler", "rp": "CurrencyConverter.ServiceDefaults_HttpMessageLoggingHandler.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.ServiceDefaults.Helpers.PaginationHelper", "rp": "CurrencyConverter.ServiceDefaults_PaginationHelper.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 32, "cb": 4, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Microsoft.Extensions.Hosting.Extensions", "rp": "CurrencyConverter.ServiceDefaults_Extensions.html", "cl": 0, "ucl": 171, "cal": 171, "tl": 219, "cb": 0, "tb": 38, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Microsoft.Extensions.Hosting.Extensions", "rp": "CurrencyConverter.ServiceDefaults_Extensions.html", "cl": 0, "ucl": 119, "cal": 119, "tl": 234, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "CurrencyConverter.Services",
     "classes": [
-      { "name": "CurrencyConverter.Services.AppServices.Configuration.ConfigurationService", "rp": "CurrencyConverter.Services_ConfigurationService.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 58, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.BaseConfigurationDto", "rp": "CurrencyConverter.Services_BaseConfigurationDto.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 34, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.ConnectionStringsConfigurationDto", "rp": "CurrencyConverter.Services_ConnectionStringsConfigurationDto.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.CurrencyConverterConfigurationDto", "rp": "CurrencyConverter.Services_CurrencyConverterConfigurationDto.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.ConfigurationService", "rp": "CurrencyConverter.Services_ConfigurationService.html", "cl": 13, "ucl": 2, "cal": 15, "tl": 58, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.BaseConfigurationDto", "rp": "CurrencyConverter.Services_BaseConfigurationDto.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 34, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.CircuitBreakerConfigurationDto", "rp": "CurrencyConverter.Services_CircuitBreakerConfigurationDto.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.ConnectionStringsConfigurationDto", "rp": "CurrencyConverter.Services_ConnectionStringsConfigurationDto.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.CurrencyConverterConfigurationDto", "rp": "CurrencyConverter.Services_CurrencyConverterConfigurationDto.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 45, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.CurrencyConverterThirdPartyApiConfigurationDto", "rp": "CurrencyConverter.Services_CurrencyConverterThirdPartyApiConfigurationDto.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 43, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.JwtConfigurationDto", "rp": "CurrencyConverter.Services_JwtConfigurationDto.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 39, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.AppServices.CustomizedHybridCache.CustomizedHybridCacheService", "rp": "CurrencyConverter.Services_CustomizedHybridCacheService.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 38, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.IpRateLimitConfigurationDto", "rp": "CurrencyConverter.Services_IpRateLimitConfigurationDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.JwtConfigurationDto", "rp": "CurrencyConverter.Services_JwtConfigurationDto.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 41, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.RateLimitingConfigurationDto", "rp": "CurrencyConverter.Services_RateLimitingConfigurationDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.Configuration.Dtos.UserRateLimitConfigurationDto", "rp": "CurrencyConverter.Services_UserRateLimitConfigurationDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.AppServices.CustomizedHybridCache.CustomizedHybridCacheService", "rp": "CurrencyConverter.Services_CustomizedHybridCacheService.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 38, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.CurrencyConverterServicesDiMapper", "rp": "CurrencyConverter.Services_CurrencyConverterServicesDiMapper.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 50, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.CurrencyConverterConvertingServiceResponseDto", "rp": "CurrencyConverter.Services_CurrencyConverterConvertingServiceResponseDto.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.CurrencyConverterHistoricalRatesPagedServiceResponseDto", "rp": "CurrencyConverter.Services_CurrencyConverterHistoricalRatesPagedServiceResponseDto.html", "cl": 7, "ucl": 0, "cal": 7, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -274,8 +280,8 @@ var assemblies = [
       { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.CurrencyConverterLatestRatesServiceResponseDto", "rp": "CurrencyConverter.Services_CurrencyConverterLatestRatesServiceResponseDto.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.Frankfurter.FrankfurterGetLatestRatesServiceResponseDto", "rp": "CurrencyConverter.Services_FrankfurterGetLatestRatesServiceResponseDto.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Dtos.Frankfurter.FrankfurterHistoricalRatesServiceResponseDto", "rp": "CurrencyConverter.Services_FrankfurterHistoricalRatesServiceResponseDto.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Factories.CurrencyConverterFactory", "rp": "CurrencyConverter.Services_CurrencyConverterFactory.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 51, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.FrankfurterCurrencyConverterService", "rp": "CurrencyConverter.Services_FrankfurterCurrencyConverterService.html", "cl": 75, "ucl": 74, "cal": 149, "tl": 287, "cb": 13, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.Factories.CurrencyConverterFactory", "rp": "CurrencyConverter.Services_CurrencyConverterFactory.html", "cl": 17, "ucl": 0, "cal": 17, "tl": 51, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.FrankfurterCurrencyConverterService", "rp": "CurrencyConverter.Services_FrankfurterCurrencyConverterService.html", "cl": 73, "ucl": 72, "cal": 145, "tl": 287, "cb": 13, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 
@@ -290,43 +296,49 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "CurrencyConverter.ServiceDefaults", "class": "Microsoft.Extensions.Hosting.Extensions", "reportPath": "CurrencyConverter.ServiceDefaults_Extensions.html", "methodName": "AddServiceDefaults(TBuilder)", "methodShortName": "AddServiceDefaults(...)", "fileIndex": 0, "line": 22,
+    "assembly": "CurrencyConverter.ServiceDefaults", "class": "Microsoft.Extensions.Hosting.Extensions", "reportPath": "CurrencyConverter.ServiceDefaults_Extensions.html", "methodName": "AddServiceDefaults(TBuilder)", "methodShortName": "AddServiceDefaults(...)", "fileIndex": 0, "line": 29,
     "metrics": [
-      { "value": 812, "exceeded": true },
-      { "value": 28, "exceeded": true },
+      { "value": 1190, "exceeded": true },
+      { "value": 34, "exceeded": true },
     ]},
   {
-    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Middlewares.ExceptionHandlingMiddleware", "reportPath": "CurrencyConverter.Api_ExceptionHandlingMiddleware.html", "methodName": "GetFullExceptionMessage(System.Exception)", "methodShortName": "GetFullExceptionMessage(...)", "fileIndex": 0, "line": 57,
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Middlewares.CircuitBreakerMiddleware", "reportPath": "CurrencyConverter.Api_CircuitBreakerMiddleware.html", "methodName": "InvokeAsync()", "methodShortName": "InvokeAsync()", "fileIndex": 0, "line": 68,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
+    ]},
+  {
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Middlewares.ExceptionHandlingMiddleware", "reportPath": "CurrencyConverter.Api_ExceptionHandlingMiddleware.html", "methodName": "GetFullExceptionMessage(System.Exception)", "methodShortName": "GetFullExceptionMessage(...)", "fileIndex": 0, "line": 83,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Controllers.AuthController", "reportPath": "CurrencyConverter.Api_AuthController.html", "methodName": "Login()", "methodShortName": "Login()", "fileIndex": 0, "line": 57,
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Controllers.AuthController", "reportPath": "CurrencyConverter.Api_AuthController.html", "methodName": "Login()", "methodShortName": "Login()", "fileIndex": 0, "line": 62,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Program", "reportPath": "CurrencyConverter.Api_Program.html", "methodName": "SeedIdentityInitialData()", "methodShortName": "SeedIdentityInitialData()", "fileIndex": 0, "line": 318,
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Program", "reportPath": "CurrencyConverter.Api_Program.html", "methodName": "SeedIdentityInitialData()", "methodShortName": "SeedIdentityInitialData()", "fileIndex": 0, "line": 323,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Middlewares.HttpRequestLoggingMiddleware", "reportPath": "CurrencyConverter.Api_HttpRequestLoggingMiddleware.html", "methodName": "Invoke()", "methodShortName": "Invoke()", "fileIndex": 0, "line": 17,
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.Middlewares.HttpRequestLoggingMiddleware", "reportPath": "CurrencyConverter.Api_HttpRequestLoggingMiddleware.html", "methodName": "Invoke()", "methodShortName": "Invoke()", "fileIndex": 0, "line": 31,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.ModelBinders.CustomDateTimeModelBinder", "reportPath": "CurrencyConverter.Api_CustomDateTimeModelBinder.html", "methodName": "BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext)", "methodShortName": "BindModelAsync(...)", "fileIndex": 0, "line": 8,
+    "assembly": "CurrencyConverter.Api", "class": "CurrencyConverter.Api.ModelBinders.CustomDateTimeModelBinder", "reportPath": "CurrencyConverter.Api_CustomDateTimeModelBinder.html", "methodName": "BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext)", "methodShortName": "BindModelAsync(...)", "fileIndex": 0, "line": 16,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "CurrencyConverter.Services", "class": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.FrankfurterCurrencyConverterService", "reportPath": "CurrencyConverter.Services_FrankfurterCurrencyConverterService.html", "methodName": "EnsureSuccessStatusCodeAsync()", "methodShortName": "EnsureSuccessStatusCodeAsync()", "fileIndex": 0, "line": 211,
+    "assembly": "CurrencyConverter.Services", "class": "CurrencyConverter.Services.HttpBasedServices.CurrencyConverter.FrankfurterCurrencyConverterService", "reportPath": "CurrencyConverter.Services_FrankfurterCurrencyConverterService.html", "methodName": "EnsureSuccessStatusCodeAsync()", "methodShortName": "EnsureSuccessStatusCodeAsync()", "fileIndex": 0, "line": 269,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
